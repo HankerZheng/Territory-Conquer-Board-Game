@@ -1,0 +1,5 @@
+2016-01-31
+	1. create Class[territory], including members -- map, north, west, map_copy
+	2. create Class[player], including members -- map, score, side, his_, my_territory, move, state_copy, and so on
+	3. create self-test, and the code has passed the self-test
+	4. create the GIT repository.
