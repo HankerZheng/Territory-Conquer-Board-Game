@@ -1,5 +1,5 @@
 2016-02-01
-	1. combine the Class[territory] and Class[player] into one Class[map]
+	1. combine the Class[territory] and Class[player] into one Class[gamespace]
 
 2016-01-31
 	1. create Class[territory], including members -- map, north, west, map_copy
