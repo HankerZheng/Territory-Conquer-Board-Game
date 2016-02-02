@@ -1,5 +1,8 @@
 2016-02-01
 	1. combine the Class[territory] and Class[player] into one Class[gamespace]
+	2. create strategy_for_pines.py
+	3. create greedy strategy
+	4. create file read function for both part 1 and part 2
 
 2016-01-31
 	1. create Class[territory], including members -- map, north, west, map_copy
