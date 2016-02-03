@@ -9,7 +9,7 @@ class gamespace(object):
 		self.__score[0] = sum([sum(x) for x in pine_map])
 
 #judgement
-	def __is_conquer(self,posi):
+	def is_conquer(self,posi):
 		return self.__territory[posi[0]][posi[1]]
 
 	def __is_adjacent_conquer(self,posi,direc):	 #dir = [0,1,2,3,4] [self, Left, Right, Up, Down]
@@ -62,7 +62,7 @@ class gamespace(object):
 
 	def move(self, posi, player):
 	#return 0 when this input is valid, otherwise, return -1
-		if (self.__is_conquer(posi) != 0) or (not player in [1,2]):
+		if (self.is_conquer(posi) != 0) or (not player in [1,2]):
 			return -1	#posi is already conquer
 		#check whether it should be a raid or a sneak
 		flag = 0
