@@ -18,14 +18,17 @@ each state can be represented by [move, depth, parent_log]
 '''
 def create_frontier(game_state, cur_frontier, cur_depth, parent_log):
 	old_posi = [-1,-1]
-	for i in xrange(4,-1,-1):
-		for j in xrange(4,-1,-1):
+	frontier = []
+	for i in xrange(5):
+		for j in xrange(5):
 			if game_state.is_conquer([i,j]) != 0 :
 				continue
 			#parent_log is a address, we have to allocate a new space for different parent_log
 			log = list(parent_log)
-			cur_frontier.append({'move':[i,j], 'depth':cur_depth+1, 'parent_log':log, 'prev_bro':old_posi})
+			frontier.append({'move':[i,j], 'depth':cur_depth+1, 'parent_log':log, 'prev_bro':old_posi})
 			old_posi = [i,j]
+	frontier.reverse()
+	cur_frontier += frontier
 	return None
 
 
