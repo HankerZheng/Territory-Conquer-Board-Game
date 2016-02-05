@@ -9,7 +9,7 @@ class gamespace(object):
 		self.__score[0] = sum([sum(x) for x in pine_map])
 
 #judgement
-	def depth_allowed(self):
+	def step_allowed(self):
 		depth_max = 0
 		for i in xrange(5):
 			for j in xrange(5):
