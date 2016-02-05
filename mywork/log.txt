@@ -1,6 +1,7 @@
 2016-02-04:
 	1. alpha-beta algorithm added
 	2. retrospect bug fixed in minimax algorithm
+	3. rename filename and move them into .\mywork
 
 2016-02-03:
 	1. traverse_log function added

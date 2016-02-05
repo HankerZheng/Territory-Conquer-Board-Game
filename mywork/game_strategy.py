@@ -1,6 +1,5 @@
 import sys
-import getopt
-from CS561HW1 import gamespace
+from game_space import gamespace
 
 
 def num_to_axis(posi):
