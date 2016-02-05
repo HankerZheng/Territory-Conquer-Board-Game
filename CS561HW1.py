@@ -9,6 +9,14 @@ class gamespace(object):
 		self.__score[0] = sum([sum(x) for x in pine_map])
 
 #judgement
+	def depth_allowed(self):
+		depth_max = 0
+		for i in xrange(5):
+			for j in xrange(5):
+				if self.__territory[i][j] == 0:
+					depth_max += 1
+		return depth_max
+
 	def is_conquer(self,posi):
 		return self.__territory[posi[0]][posi[1]]
 

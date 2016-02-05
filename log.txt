@@ -1,3 +1,12 @@
+2016-02-04:
+	1. alpha-beta algorithm added
+	2. retrospect bug fixed in minimax algorithm
+
+2016-02-03:
+	1. traverse_log function added
+	2. file_compare.py added
+	3. depth_allowed added in Class gamespace
+
 2016-02-02(1):
 	1. just before going to bed, come up with an idea, and solve the depth problem
 	   the problem is caused by not using reverse()

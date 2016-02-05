@@ -49,18 +49,18 @@ def file_compare(file_name1, file_name2, info):
         #打印出不同的行序和列序，并把不同的前一句后本句打印出来
         #最后两个字符是不同的地方
         print "\trow:", row+1, "col:", col
-        print "\t%s is:\n\t\t%s\t\t%s" % (file_name1 , fa[row-1],fa[row][:col+1])
-        print "\t%s is:\n\t\t%s\t\t%s" % (file_name2, fb[row-1],fb[row][:col+1])
+        print "\t%s is:\n\t\t%s\n\t\t%s" % (file_name1 , fa[row-1].strip(),fa[row].strip())
+        print "\t%s is:\n\t\t%s\n\t\t%s" % (file_name2, fb[row-1].strip(),fb[row].strip())
     else :
         print "\tAll are same!"
 
 
 if __name__ == '__main__':
     my_traverse_log = "traverse_log.txt"
-    sample_traverse_log = ".\\Sample\\3\\traverse_log.txt"
+    sample_traverse_log = ".\\Sample\\4\\traverse_log.txt"
 
     my_next_state = "next_state.txt"
-    sample_next_state = ".\\Sample\\3\\next_state.txt"
+    sample_next_state = ".\\Sample\\4\\next_state.txt"
 
     file_compare(my_traverse_log, sample_traverse_log, "traverse_log")
     file_compare(my_next_state,sample_next_state,'next_state')

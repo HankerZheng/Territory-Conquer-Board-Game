@@ -8,29 +8,45 @@ def num_to_axis(posi):
 	string = axis_table[posi[1]]+str(posi[0]+1)
 	return string
 
+def str_infi(value):
+	if value <= -sys.maxint-1:
+		return '-Infinity'
+	elif value >= sys.maxint:
+		return 'Infinity'
+	else:
+		return str(value)
+
 def traverse_log_minimax(posi, depth, value):
 	string = list()
-	if depth == 0:
-		string = ['root']
-	else:
-		string = [num_to_axis(posi)]
-	string.append(str(depth))
-	if value == -sys.maxint-1:
-		string.append('-Infinity')
-	elif value == sys.maxint:
-		string.append('Infinity')
-	else:
-		string.append(str(value))
+	string = ['root'] if depth == 0 else [num_to_axis(posi)]
+	string.append(str_infi(depth))
+	string.append(str_infi(value))
 	return ','.join(string)
 
+def traverse_log_alpha_beta(posi, depth, value):
+	string = list()
+	string = ['root'] if depth == 0 else [num_to_axis(posi)]
+	string.append(str_infi(depth))
+	string.append(str_infi(value[0]))
+	string.append(str_infi(value[2]))
+	string.append(str_infi(value[3]))
+	return ','.join(string)
 
-'''
-	frontier store the state of each node. 
-	each state can be represented by [move, depth, parent_log]
-		move: 		the action taken by this node
-		depth: 		the search depth of this node
-		parent_log: a list of posi, which tells how to get to the game_state of this node's parent from root_state
-'''
+def not_in_alpha_beta(this_value, value):
+	if this_value[0] > value[2] and this_value[0] < value[3]:
+		return 0
+	elif this_value[0] <= value[2]:
+	# this_value is less than alpha
+		return -1
+	else:
+	# this_value is larger than beta
+		return 1
+
+#	frontier store the state of each node. 
+#	each state can be represented by [move, depth, parent_log]
+#		move: 		the action taken by this node
+#		depth: 		the search depth of this node
+#		parent_log: a list of posi, which tells how to get to the game_state of this node's parent from root_state
 def create_frontier(game_state, cur_frontier, cur_depth, parent_log):
 	frontier = []
 	for i in xrange(5):
@@ -46,8 +62,8 @@ def create_frontier(game_state, cur_frontier, cur_depth, parent_log):
 
 
 #algorithm
-def greedy_algorithm(game_state, player, cutoff):
 #return a position to move into
+def greedy_algorithm(game_state, player, cutoff):
 	max_value = [-sys.maxint-1,[0,0]]
 	game_state_temp = game_state.state_copy()
 	for i in xrange(5):
@@ -62,25 +78,27 @@ def greedy_algorithm(game_state, player, cutoff):
 			game_state_temp = game_state.state_copy()
 	return max_value
 
-
 def minimax_algorithm(game_state, player, cutoff):	
 	max_value = [-sys.maxint-1, [0,0]]
 	min_value = [sys.maxint   , [0,0]]
+	depth_max = game_state.depth_allowed()
+	cutoff = cutoff if cutoff < depth_max else depth_max
 
 	root_state = game_state.state_copy()
 	#initialize frontier, best_move, last_depth for loop
 	frontier, best_move, last_depth= [], [], 0
 	fh_tl.write('Node,Depth,Value')
 	create_frontier(game_state = root_state, cur_frontier = frontier, cur_depth = 0, parent_log = [])
-	for i in xrange(cutoff):
+	for i in xrange(cutoff+1):
 	#best_move[depth] store the best_move for each depth
-		best_move.append( min_value if i%2 else max_value)	
+		best_move.append( list(min_value) if i%2 else list(max_value))	
 	fh_tl.write('\n%s' % traverse_log_minimax([], 0, best_move[0][0]))
 
 	#main loop, search down to the cutoff depth
 	while len(frontier) != 0:
 		this_node = frontier.pop()
 		this_depth = this_node['depth']
+		#get the game state for this node
 		this_game_state = root_state.state_copy()
 		for i, posi in enumerate(this_node['parent_log']):
 			thisplayer = player if i%2==0 else (3-player)
@@ -90,44 +108,28 @@ def minimax_algorithm(game_state, player, cutoff):
 		if this_depth == cutoff:
 		#when reach the cutoff depth, don't expand the node, just calculate the score and update best_move
 			this_value = this_game_state.get_score()[player] - this_game_state.get_score()[3-player]
+			best_move[this_depth][0] = this_value
 			fh_tl.write( '\n%s'% traverse_log_minimax(this_node['move'], this_depth, this_value))
-			#flag for whether this node is the last in this depth
-			flag_last = 0
-			if len(frontier) == 0:
-				flag_last = 1
-			elif this_depth > frontier[len(frontier)-1]['depth']:
-				flag_last = 1
 
-			#just update its parent value
-			if this_depth%2:
-			#search for max score
-				if this_value > best_move[this_depth - 1][0]:
-					best_move[this_depth - 1] = [this_value, this_node['move']]
-			else:
-			#search for min score
-				if this_value < best_move[this_depth - 1][0]:
-					best_move[this_depth - 1] = [this_value, this_node['move']]
-			parent_move = this_node['parent_log'].pop() if len(this_node['parent_log']) else []
-			last_parent = parent_move
-			fh_tl.write( '\n%s'% traverse_log_minimax(parent_move, this_depth-1, best_move[this_depth - 1][0]))
-			if flag_last:
-			#if this node is the last node in this depth,
+			#depth for this node to retrospect			
+			retro_depth = 1 if len(frontier) == 0 else frontier[len(frontier)-1]['depth']
+			last_parent = this_node['move']
 			#update best_move both this depth and all its upper depth.
-				for depth in xrange(this_depth-1,0,-1):	
-				#depth, depth-1, depth-2, ..., 1
-					#terverse its parent
-					parent_move = this_node['parent_log'].pop() if len(this_node['parent_log']) else []
-					#update the best_move
-					a = min(best_move[depth - 1], [best_move[depth][0],last_parent]) 
-					b = max(best_move[depth - 1], [best_move[depth][0],last_parent])
-					best_move[depth - 1] = b if depth%2 else a
-					fh_tl.write( '\n%s'% traverse_log_minimax(parent_move, depth-1, best_move[depth - 1][0]))
-					last_parent = parent_move
+			for depth in xrange(this_depth,retro_depth - 1,-1):	
+			#depth, depth-1, depth-2, ..., 1
+				#terverse its parent
+				parent_move = this_node['parent_log'].pop() if len(this_node['parent_log']) else []
+				#update the best_move
+				less_val = min(best_move[depth - 1], [best_move[depth][0],last_parent]) 
+				larger_val = max(best_move[depth - 1], [best_move[depth][0],last_parent])
+				best_move[depth - 1] = larger_val if depth%2 else less_val
+				fh_tl.write( '\n%s'% traverse_log_minimax(parent_move, depth-1, best_move[depth - 1][0]))
+				last_parent = parent_move
 		else:
 		#it's not the cutoff depth, continue expand this node			
 			this_node['parent_log'].append(this_node['move'])
 			create_frontier(game_state = this_game_state, cur_frontier = frontier, cur_depth = this_depth, parent_log = this_node['parent_log'])
-			best_move[this_depth] = min_value if this_depth%2 else max_value
+			best_move[this_depth] = list(min_value) if this_depth%2 else list(max_value)
 			fh_tl.write( '\n%s'% traverse_log_minimax(this_node['move'], this_depth, best_move[this_depth][0]))
 		#before finish one loop, delete the redundant memory	
 		del this_game_state
@@ -136,8 +138,104 @@ def minimax_algorithm(game_state, player, cutoff):
 	return best_move[0]
 
 
+#if this depth is in search for MAX value, then only update the left  side of bound, that is alpha
+#if this depth is in search for MIN value, then only update the right side of bound, that is beta
+#if MAX searching line, exceeding the alpha(left) bound, ignore it
+#						exceeding the beta(right) bound, prune the leave without propagate to grandparent
+#if MIN searching line, exceeding the alpha(left) bound, prune the leave without propagate to grandparent
+#						exceeding the beta(right) bound, ignore it
 def alpha_beta_pruning(game_state, player, cutoff):
-	pass
+	max_value = [-sys.maxint-1, [0,0], -sys.maxint-1, sys.maxint]
+	min_value = [sys.maxint   , [0,0], -sys.maxint-1, sys.maxint]
+	depth_max = game_state.depth_allowed()
+	cutoff = cutoff if cutoff < depth_max else depth_max
+
+	root_state = game_state.state_copy()
+	#initialize frontier, best_move, last_depth for loop
+	frontier, best_move, last_depth= [], [], 0
+	fh_tl.write('Node,Depth,Value,Alpha,Beta')
+	create_frontier(game_state = root_state, cur_frontier = frontier, cur_depth = 0, parent_log = [])
+	for i in xrange(cutoff+1):
+	#best_move[depth] store the best_move for each depth
+		best_move.append( list(min_value) if i%2 else list(max_value))	
+	fh_tl.write('\n%s' % traverse_log_alpha_beta([], 0, best_move[0]))
+
+	#main loop, search down to the cutoff depth
+	while len(frontier) != 0:
+		this_node = frontier.pop()
+		this_depth = this_node['depth']
+		#get the game state for this node
+		this_game_state = root_state.state_copy()
+		for i, posi in enumerate(this_node['parent_log']):
+			thisplayer = player if i%2==0 else (3-player)
+			this_game_state.move(posi, thisplayer)
+		this_game_state.move(this_node['move'], player if this_depth%2 else (3-player))
+
+		if this_depth == cutoff:
+		#when reach the cutoff depth, don't expand the node, just calculate the score and update best_move
+			#traverse this node -- print info in this node
+			best_move[this_depth] = [this_game_state.get_score()[player] - this_game_state.get_score()[3-player]] + list(best_move[this_depth-1][1:4])
+			fh_tl.write( '\n%s'% traverse_log_alpha_beta(this_node['move'], this_depth, best_move[this_depth]))
+			#prune test!
+			prune_check = not_in_alpha_beta(best_move[this_depth], best_move[this_depth-1])
+			if (prune_check == 1 and (this_depth-1)%2 == 0) or (prune_check == -1 and (this_depth-1)%2 == 1):
+			# this value exceeds the right bound of MAX searching line or
+			# this value exceeds the left  bound of MIN searching line 		PRUNING
+				next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
+				while next_node['depth'] == this_depth:
+					next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
+				if next_node['depth'] != 0:
+					frontier.append(next_node)
+				best_move[this_depth-1][0] = best_move[this_depth][0]
+
+			#depth for this node to retrospect			
+			retro_depth = 1 if len(frontier) == 0 else frontier[len(frontier)-1]['depth']
+			last_parent = this_node['move']
+
+			for depth in xrange(this_depth,retro_depth - 1,-1):	
+			#depth, depth-1, depth-2, ..., 1
+				#terverse its parent
+				parent_move = this_node['parent_log'].pop() if len(this_node['parent_log']) else []
+				#update the best_move
+				prune_check = not_in_alpha_beta(best_move[depth], best_move[depth-1])
+				if (depth-1)%2 == 1:
+				#parent depth is searching for MIN
+					if prune_check == 0:
+					#best_move[this_depth][0] is in bound
+						best_move[depth-1][3] = best_move[depth][0]
+						best_move[depth-1][1] = last_parent
+						best_move[depth-1][0] = best_move[depth][0]
+					else:
+					#best_move[this_depth][0] is larger than beta
+						pass
+				else:
+				#parent depth is searching for MAX
+					if prune_check == 0:
+					#best_move[this_depth][0] is in bound
+						best_move[depth-1][2] = best_move[depth][0]
+						best_move[depth-1][1] = last_parent
+						best_move[depth-1][0] = best_move[depth][0]
+					else:
+					#best_move[this_depth][0] is less than alpha
+						pass
+
+				fh_tl.write( '\n%s'% traverse_log_alpha_beta(parent_move, depth-1, best_move[depth - 1]))
+				last_parent = parent_move
+
+		else:
+		#it's not the cutoff depth, continue expand this node			
+			this_node['parent_log'].append(this_node['move'])
+			create_frontier(game_state = this_game_state, cur_frontier = frontier, cur_depth = this_depth, parent_log = this_node['parent_log'])
+			best_move[this_depth][2:4] = list(best_move[this_depth-1][2:4])				#[alpha, beta] inherits from its parent
+			best_move[this_depth][0:2] = list(min_value[0:2]) if this_depth%2 else list(max_value[0:2])
+			#best_move is set to default for next expand according to depth
+
+			fh_tl.write( '\n%s'% traverse_log_alpha_beta(this_node['move'], this_depth, best_move[this_depth]))
+		#before finish one loop, delete the redundant memory	
+		del this_game_state
+
+	fh_tl.close()
+	return best_move[0]
 
 #file I/O
 def read_file_input(f_path):
