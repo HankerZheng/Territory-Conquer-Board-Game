@@ -56,13 +56,13 @@ def file_compare(file_name1, file_name2, info):
 
 
 if __name__ == '__main__':
-    my_traverse_log = "traverse_log.txt"
+    my_next_state = "..\\next_state.txt"
+    sample_next_state = "..\\Sample\\1\\next_state.txt"
+
+    my_traverse_log = "..\\traverse_log.txt"
     sample_traverse_log = "..\\Sample\\2\\traverse_log.txt"
 
-    my_next_state = "next_state.txt"
-    sample_next_state = "..\\Sample\\2\\next_state.txt"
-
-    my_trace_state = "trace_state.txt"
+    my_trace_state = "..\\trace_state.txt"
     sample_trace_state = "..\\Sample\\5\\trace_state.txt"
 
     file_compare(my_traverse_log, sample_traverse_log, "traverse_log")
