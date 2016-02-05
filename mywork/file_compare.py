@@ -51,8 +51,10 @@ def file_compare(file_name1, file_name2, info):
         print "\trow:", row+1, "col:", col
         print "\t%s is:\n\t\t%s\n\t\t%s" % (file_name1 , fa[row-1].strip(),fa[row].strip())
         print "\t%s is:\n\t\t%s\n\t\t%s" % (file_name2, fb[row-1].strip(),fb[row].strip())
+        return 0
     else :
         print "\tAll are same!"
+        return 1
 
 
 if __name__ == '__main__':

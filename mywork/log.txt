@@ -1,3 +1,7 @@
+2016-02-05:
+	1. alpha-beta bug fixed -- propagate when pruning, retrospect depth change
+	2. all test case passed!
+
 2016-02-04:
 	1. alpha-beta algorithm added
 	2. retrospect bug fixed in minimax algorithm

@@ -5,7 +5,7 @@ from file_compare import file_compare
 
 def main():
 	for ipart in ['part1_test','part2_test']:
-		for itest in range(100):
+		for itest in range(0,100):
 			os.chdir('.\\Hongtai')
 			os.popen('python .\\hw1_test.py -i ..\\%s\\%d.txt' % (ipart,itest))
 			os.chdir('..\\Han')
@@ -19,7 +19,7 @@ def main():
 			if task==1:
 				target_file=['next_state.txt']
 			elif task==2 or task==3:
-				target_file=['next_state.txt','traverse_log.txt']
+				target_file=['traverse_log.txt','next_state.txt']
 			elif task==4:
 				target_file=['trace_state.txt']
 			for itarget in target_file:
@@ -29,6 +29,5 @@ def main():
 				ret_val= file_compare(target1, target2, itarget)
 				if ret_val==0:
 					return
-			return
 
 main()

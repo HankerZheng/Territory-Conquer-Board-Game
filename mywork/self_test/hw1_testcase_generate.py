@@ -11,11 +11,11 @@ def test_part1_generate(num):
 		#generate the parameter randomly
 		tasknum = random.randint(1,3)
 		player = random.choice(['X','O'])
-		cutoff = random.randint(1,3)
+		cutoff = random.randint(min_cutoff ,max_cutoff)
 		board_grid_value = [[random.randint(1,99) for i in xrange(5)] for j in xrange(5)]
 		this_move_pool = list(move_pool)
 		random.shuffle(this_move_pool)
-		current_move = random.randrange(0,15,2) if player == 'X' else random.randrange(1,16,2)
+		current_move = random.randrange(min_move, max_move, 2) if player == 'X' else random.randrange(min_move, max_move,2)
 		game_state = gamespace(board_grid_value)
 		this_player = 1
 		for i in range(current_move):
@@ -44,14 +44,14 @@ def test_part2_generate(num):
 		tasknum = 4
 		fir_player = random.choice(['X','O'])
 		fir_p_algo = random.randint(1,3)
-		fir_cutoff = random.randint(1,3)
+		fir_cutoff = random.randint(min_cutoff,max_cutoff)
 		sec_player = 'X' if fir_player == 'O' else 'O'
 		sec_p_algo = random.randint(1,3)
-		sec_cutoff = random.randint(1,3)
+		sec_cutoff = random.randint(min_cutoff,max_cutoff)
 		board_grid_value = [[random.randint(1,99) for i in xrange(5)] for j in xrange(5)]
 		this_move_pool = list(move_pool)
 		random.shuffle(this_move_pool)
-		current_move = random.randrange(0,15,2) if fir_player == 'X' else random.randrange(1,16,2)
+		current_move = random.randrange(min_move, max_move, 2) if fir_player == 'X' else random.randrange(min_move, max_move, 2)
 		game_state = gamespace(board_grid_value)
 		this_player = 1
 		for i in range(current_move):
@@ -74,6 +74,10 @@ def test_part2_generate(num):
 		test_file.close()
 
 
+min_cutoff = 1
+max_cutoff = 4
+min_move = 2
+max_move = 23
 
 move_pool = []
 for i in xrange(5):

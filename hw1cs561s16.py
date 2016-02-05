@@ -311,23 +311,11 @@ def alpha_beta_pruning(game_state, player, cutoff, trace):
 			best_move[this_depth] = [this_game_state.get_score()[player] - this_game_state.get_score()[3-player]] + \
 									 list(best_move[this_depth-1][1:4])
 			if (trace):	fh_tl.write( '\n%s'% traverse_log_alpha_beta(this_node['move'], this_depth, best_move[this_depth]))
-			#prune test!
-			prune_check = not_in_alpha_beta(best_move[this_depth], best_move[this_depth-1])
-			if (prune_check == 1 and (this_depth-1)%2 == 0) or (prune_check == -1 and (this_depth-1)%2 == 1):
-			# this value exceeds the right bound of MAX searching line or
-			# this value exceeds the left  bound of MIN searching line 		PRUNING
-				next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
-				while next_node['depth'] == this_depth:
-					next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
-				if next_node['depth'] != 0:
-					frontier.append(next_node)
-				best_move[this_depth-1][0] = best_move[this_depth][0]
-
-			#depth for this node to retrospect			
+			#depth for this node to retrospect
 			retro_depth = 1 if len(frontier) == 0 else frontier[len(frontier)-1]['depth']
 			last_parent = this_node['move']
-
-			for depth in xrange(this_depth,retro_depth - 1,-1):	
+			depth = this_depth
+			while depth >= retro_depth:	
 			#depth, depth-1, depth-2, ..., 1
 				#terverse its parent
 				parent_move = this_node['parent_log'].pop() if len(this_node['parent_log']) else []
@@ -336,21 +324,47 @@ def alpha_beta_pruning(game_state, player, cutoff, trace):
 				if (depth-1)%2 == 1:
 				#parent depth is searching for MIN
 					if prune_check == 0:
-					#best_move[this_depth][0] is in bound
+					#best_move[depth][0] is in bound
 						best_move[depth-1][3] = best_move[depth][0]
 						best_move[depth-1][1] = last_parent
 						best_move[depth-1][0] = best_move[depth][0]
-					#best_move[this_depth][0] is larger than beta, do nothing
+					elif prune_check == 1:
+					#best_move[depth][0] is larger than beta, do nothing
+						best_move[depth-1][0] = my_min(best_move[depth-1], best_move[depth])[0]
+					else:
+					#best_move[depth][0] is less than alpha, PRUNING
+						next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
+						while next_node['depth'] == depth:
+							next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
+						if next_node['depth'] != 0:
+							frontier.append(next_node)
+						best_move[depth][2:4] = list(best_move[depth-1][2:4])
+						best_move[depth-1][0] = my_min(best_move[depth-1], best_move[depth])[0]
+						retro_depth = 1 if len(frontier) == 0 else frontier[len(frontier)-1]['depth']
 				else:
 				#parent depth is searching for MAX
 					if prune_check == 0:
-					#best_move[this_depth][0] is in bound
+					#best_move[depth][0] is in bound
 						best_move[depth-1][2] = best_move[depth][0]
 						best_move[depth-1][1] = last_parent
 						best_move[depth-1][0] = best_move[depth][0]
-					#best_move[this_depth][0] is less than alpha, do nothing
+					elif prune_check == -1:
+					#best_move[depth][0] is less than alpha, do nothing
+						best_move[depth-1][0] = my_max(best_move[depth-1], best_move[depth])[0]
+					else:
+					#best_move[depth][0] is larger than beta, PRUNING
+						next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
+						while next_node['depth'] == depth:
+							next_node = {'depth': 0} if len(frontier) == 0 else frontier.pop()
+						if next_node['depth'] != 0:
+							frontier.append(next_node)
+						best_move[depth][2:4] = list(best_move[depth-1][2:4])
+						best_move[depth-1][0] = my_max(best_move[depth-1], best_move[depth])[0]
+						retro_depth = 1 if len(frontier) == 0 else frontier[len(frontier)-1]['depth']
+
 				if trace:	fh_tl.write( '\n%s'% traverse_log_alpha_beta(parent_move, depth-1, best_move[depth - 1]))
 				last_parent = parent_move
+				depth -= 1
 
 		else:
 		#it's not the cutoff depth, continue expand this node			
