@@ -83,6 +83,7 @@ def greedy_algorithm(game_state, player, cutoff, trace):
 			game_state_temp = game_state.state_copy()
 	return max_value[1]
 
+
 def minimax_algorithm(game_state, player, cutoff, trace):	
 	max_value = [-sys.maxint-1, [0,0]]
 	min_value = [sys.maxint   , [0,0]]
@@ -95,10 +96,19 @@ def minimax_algorithm(game_state, player, cutoff, trace):
 	create_frontier(game_state = root_state, cur_frontier = frontier, cur_depth = 0, parent_log = [])
 	for i in xrange(cutoff+1):
 	#best_move[depth] store the best_move for each depth
-		best_move.append( list(min_value) if i%2 else list(max_value))	
+		best_move.append( list(min_value) if i%2 else list(max_value))
+
+	if len(frontier) == 0:	return [0,0]	#the board is already full
+
 	if trace:
 		fh_tl.write('Node,Depth,Value')
 		fh_tl.write('\n%s' % traverse_log_minimax([], 0, best_move[0][0]))
+	if cutoff == 0:
+		special_case = frontier.pop()
+		root_state.move(special_case['move'], player)
+		this_value = root_state.get_score()[player] - root_state.get_score()[3-player]
+		if (trace):	fh_tl.write( '\n%s'% traverse_log_minimax(special_case['move'], 0, this_value))
+		return special_case['move']
 
 	#main loop, search down to the cutoff depth
 	while len(frontier) != 0:
@@ -141,7 +151,6 @@ def minimax_algorithm(game_state, player, cutoff, trace):
 		del this_game_state
 	return best_move[0][1]
 
-
 #if this depth is in search for MAX value, then only update the left  side of bound, that is alpha
 #if this depth is in search for MIN value, then only update the right side of bound, that is beta
 #if MAX searching line, exceeding the alpha(left) bound, ignore it
@@ -160,10 +169,20 @@ def alpha_beta_pruning(game_state, player, cutoff, trace):
 	create_frontier(game_state = root_state, cur_frontier = frontier, cur_depth = 0, parent_log = [])
 	for i in xrange(cutoff+1):
 	#best_move[depth] store the best_move for each depth
-		best_move.append( list(min_value) if i%2 else list(max_value))	
+		best_move.append( list(min_value) if i%2 else list(max_value))
+
+	if len(frontier) == 0:	return [0,0]	#the board is already full
+
 	if (trace):	
 		fh_tl.write('Node,Depth,Value,Alpha,Beta')
 		fh_tl.write('\n%s' % traverse_log_alpha_beta([], 0, best_move[0]))
+	if cutoff == 0:
+		special_case = frontier.pop()
+		root_state.move(special_case['move'], player)
+		best_move[0][0] = root_state.get_score()[player] - root_state.get_score()[3-player]
+		if (trace):	fh_tl.write( '\n%s'% traverse_log_alpha_beta(special_case['move'], 0, best_move[0]))
+		return special_case['move']
+
 
 	#main loop, search down to the cutoff depth
 	while len(frontier) != 0:
@@ -248,6 +267,8 @@ def alpha_beta_pruning(game_state, player, cutoff, trace):
 		#before finish one loop, delete the redundant memory	
 		del this_game_state
 	return best_move[0][1]
+
+
 #file I/O
 def read_file_input(f_path):
 	pine_map = []
@@ -321,13 +342,14 @@ if __name__ == '__main__':
 
 #start action
 	if data['lines'] == 13:
-		next_move = strategy(game_state,player, cutoff, 1)
-		game_state.move(next_move, player)
-		for i, line in enumerate(game_state.stand_terri_info()):
-			if i == 0:	fh_ns.write('%s'%line)
-			else:		fh_ns.write('\n%s'%line)
-		if data['strategy']:	fh_tl.close()
-		fh_ns.close()
+		if game_state.step_allowed():
+			next_move = strategy(game_state,player, cutoff, 1)
+			game_state.move(next_move, player)
+			for i, line in enumerate(game_state.stand_terri_info()):
+				if i == 0:	fh_ns.write('%s'%line)
+				else:		fh_ns.write('\n%s'%line)
+			if data['strategy']:	fh_tl.close()
+			fh_ns.close()
 	else:
 		player_index = 0
 		while game_state.step_allowed():

@@ -1,3 +1,6 @@
+2016-02-06:
+	1. special case -- when board is full or when cutoff == 0
+
 2016-02-05:
 	1. alpha-beta bug fixed -- propagate when pruning, retrospect depth change
 	2. all test case passed!
