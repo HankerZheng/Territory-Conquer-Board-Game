@@ -55,5 +55,8 @@ X
 For each test case, your program should output a file named *next_state.txt* showing the next state of the board after the move. For Minimax and AlphaBeta
 Pruning , your program should output another file named *traverse_log.txt* showing the traverse log of your program in the following format. There is no need to output *traverse_log.txt* for Greedy Bestfirst Search.
 
+# Test-case Generator
+Source code in `/mywork/self_test/test_generator.py`. Given a basic knowledge base, the test-case generator would randomly generate certain number of possible queries in `/mywork/self_test/testcases/`.
+
 # Usage
 This program should be called as `$python .\file_name.py -i input_file_name.txt`
