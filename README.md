@@ -56,7 +56,7 @@ For each test case, your program should output a file named *next_state.txt* sho
 Pruning , your program should output another file named *traverse_log.txt* showing the traverse log of your program in the following format. There is no need to output *traverse_log.txt* for Greedy Bestfirst Search.
 
 # Test-case Generator
-Source code in `/mywork/self_test/test_generator.py`. Given a basic knowledge base, the test-case generator would randomly generate certain number of possible queries in `/mywork/self_test/testcases/`.
+Source code in `/mywork/self_test/test_generate.py`. Given `min_cutoff`, `max_cutoff`, `min_move`, `max_move`, the test-case generator would randomly generate certain number of input files in `/mywork/self_test/part1_test/` and `/mywork/self_test/part2_test/`.
 
 # Usage
 This program should be called as `$python .\file_name.py -i input_file_name.txt`
